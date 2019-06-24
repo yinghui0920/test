@@ -1,0 +1,139 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+<script src="~/Content/jquery-3.3.1.min.js"></script>
+
+<script>
+    $(function () {
+        GetStudent();
+        GetSchool();
+    })
+    function GetStudent() {
+        $.ajax({
+            url: "http://localhost:19739/api/Student/ShowStudent",
+            type: "get",
+            dataType: "json",
+            success: function (data) {
+                $("#tbody").empty();
+                $(data).each(function () {
+                    var str = "<tr>" +
+                                "<td>"+this.StuId+"</td>" +
+                                "<td>"+this.Class.School.SName + "</td>" +
+                                "<td>"+this.Class.CName+"</td>" +
+                                "<td>"+this.StuName+"</td>" +
+                                "<td>"+this.Sex+"</td>" +
+                                "<td>"+
+                                        "<input id='Button1' type='button' value='删除' onclick=Del(" + this.StuId + ") />"+
+                                        "<input id='Button1' type='button' value='修改' onclick=Edit(" + this.StuId + ") />" +
+                                "</td>" +
+                            "</tr>";
+                    $("#tbody").append(str);
+                })
+            }
+        })
+    }
+    function Del(id) {
+        $.ajax({
+            url: "http://localhost:19739/api/Student/DelStudent?Id=" + id,
+            type: "delete",
+            dataType: "json",
+            success: function (data) {
+                if (confirm("是否删除")) {
+                    if (data > 0) {
+                        alert("删除成功！");
+                        location.href = "/Studentefault/Index";
+                    }
+                    else {
+                        alert("删除失败！");
+                    }
+                }
+            }
+        })
+    }
+    function GetSchool() {
+        $.ajax({
+            url: "http://localhost:19739/api/Student/ShowSchool",
+            type: "get",
+            dataType: "json",
+            success: function (data) {
+                $("#Select1").empty();
+                $(data).each(function () {
+                    var str = "<option value=" + this.SId + ">" + this.SName + "</option>";
+                    $("#Select1").append(str);
+                });
+                GetClass($("#Select1").val());
+            }
+        });
+    }
+    function GetClass() {
+        var SId = $('#Select1').val()
+        $.ajax({
+            url: "http://localhost:19739/api/Student/ShowClass?SId=" + SId,
+            type: "get",
+            dataType: "json",
+            success: function (data) {
+                $("#Select2").empty();
+                $(data).each(function () {
+                    var str = "<option value=" + this.CId + ">" + this.CName + "</option>";
+                    $("#Select2").append(str);
+                });
+            }
+        });
+    }
+    function Search(CId) {
+        $.ajax({
+            url: "http:/6/localhost:19739/api/Student/SearchStudent?CId="+CId,
+            type: "get",
+            dataType: "json",
+            success: function (data) {
+                $("#tbody").empty();
+                $(data).each(function () {
+                    var str = "<tr>" +
+                                "<td>" + this.StuId + "</td>" +
+                                "<td>" + this.Class.School.SName + "</td>" +
+                                "<td>" + this.Class.CName + "</td>" +
+                                "<td>" + this.StuName + "</td>" +
+                                "<td>" + this.Sex + "</td>" +
+                                "<td>"+
+                                        "<input id='Button1' type='button' value='删除' onclick=Del(" + this.StuId + ") />" +
+                                        "<input id='Button1' type='button' value='修改' onclick=Edit(" + this.StuId + ") />" +
+                                "</td>" +
+                            "</tr>";
+                    $("#tbody").append(str);
+                })
+            }
+        })
+    }
+    function Edit(Id) {
+        location.href = "/Studentefault/EditStudent?Id=" + Id;
+    }
+</script>
+<h2>Index</h2>
+
+
+学校：<select id="Select1" onchange="GetClass()">
+          <option></option>
+      </select>
+班级：<select id="Select2">
+          <option></option>
+      </select>
+
+<input id="Button1" type="button" value="查询" onclick="Search($('#Select2').val())" />
+
+<input id="Button1" type="button" value="添加" onclick="location.href = '/Studentefault/AddStudent'" />
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <td>编号</td>
+            <td>学校</td>
+            <td>班级</td>
+            <td>姓名</td>
+            <td>性别</td>
+            <td>操作</td>
+        </tr>
+    </thead>
+    <tbody id="tbody">
+    </tbody>
+</table>
+

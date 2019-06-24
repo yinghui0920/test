@@ -1,0 +1,113 @@
+﻿
+@{
+    ViewBag.Title = "EditStudent";
+}
+
+<h2>EditStudent</h2>
+<script src="~/Content/jquery-3.3.1.min.js"></script>
+<script>
+
+    $(function myfunction() {
+        GetId();
+        GetSchool();
+    })
+    function GetId() {
+        var id = location.search.substring(4);
+        $.ajax({
+            url: "http://localhost:19739/api/Student/GetStudentById?Id=" + id,
+            type: "get",
+            dataType: "json",
+            success: function (data) {
+                $(data).each(function () {
+                    $("#txtName").val(this.StuName);
+                    $("#txtSex").val(this.Sex);
+                    $("#Select2").val(this.CId);
+                })
+            }
+        })
+    }
+    function GetSchool() {
+        $.ajax({
+            url: "http://localhost:19739/api/Student/ShowSchool",
+            type: "get",
+            dataType: "json",
+            success: function (data) {
+                $("#Select1").empty();
+                $(data).each(function () {
+                    var str = "<option value=" + this.SId + ">" + this.SName + "</option>";
+                    $("#Select1").append(str);
+                });
+                GetClass($("#Select1").val());
+            }
+        });
+    }
+    function GetClass(SId) {
+        $.ajax({
+            url: "http://localhost:19739/api/Student/ShowClass?SId="+SId,
+            type: "get",
+            dataType: "json",
+            success: function (data) {
+                $("#Select2").empty();
+                $(data).each(function () {
+                    var str = "<option value=" + this.CId + ">" + this.CName + "</option>";
+                    $("#Select2").append(str);
+                });
+            }
+        });
+    }
+
+    function SaveStudent() {
+        lisr = {
+            StuName: $("#txtName").val(),
+            Sex: $("#txtSex").val(),
+            CId: $("#Select2").val(),
+        }
+        $.ajax({
+            url: "http://localhost:19739/api/Student/UptAjaxStudent?stu=" + JSON.stringify(lisr),
+            type: "post",
+            dataType: "json",
+            success: function (data) {
+                if (data>0) {
+                    alert("添加成功！");
+                    location.href = "/Studentefault/Index";
+                }
+                else {
+                    alert("添加失败！");
+                }
+            }
+        })
+    }
+</script>
+
+<input id="Button1" type="button" value="显示" onclick="location.href = '/Studentefault/Index'" />
+
+<table>
+    <tr>
+        <td>姓名：</td>
+        <td><input id="txtName" type="text" /></td>
+    </tr>
+    <tr>
+        <td>性别：</td>
+        <td><input id="txtSex" type="text" /></td>
+    </tr>
+    <tr>
+        <td>学校：</td>
+        <td>
+            <select id="Select1">
+                <option></option>
+
+            </select>
+        </td>
+        <td>班级：</td>
+        <td>
+            <select id="Select2">
+                <option></option>
+
+            </select>
+        </td>
+    </tr>
+    <tr>
+        <td></td>
+        <td><input id="Button1" type="button" value="保存" class="btn btn-danger" onclick="SaveStudent()" /></td>
+    </tr>
+</table>
